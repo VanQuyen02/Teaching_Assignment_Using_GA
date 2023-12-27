@@ -42,8 +42,10 @@ class Schedule:
     def checkConstraint7_after_assign(self, data, total_courses_of_instructors, instructor):
         return total_courses_of_instructors[instructor] >= data.minC[instructor][0]
     # 8. Do not assign an instructor to teach more classes than the maximum number they are allowed to teach
-    def checkConstraint8(self, data, total_courses_of_instructors, instructor):
+    def checkConstraint8_before_assign(self, data, total_courses_of_instructors, instructor):
         return total_courses_of_instructors[instructor] < data.maxC[instructor][0]
+    def checkConstraint8_after_assign(self, data, total_courses_of_instructors, instructor):
+        return total_courses_of_instructors[instructor] <= data.maxC[instructor][0]
 
     def check_all_constraint_before_assign(self, data, total_courses_of_instructors, timetable_of_instructors, course, instructor):
         return (self.checkConstraint3_before_assign(data, timetable_of_instructors, course, instructor) and
@@ -51,14 +53,14 @@ class Schedule:
                 self.checkConstraint5(data, course, instructor) and
                 self.checkConstraint6(data, course, instructor) and
                 self.checkConstraint7_before_assign(data, total_courses_of_instructors, instructor) and
-                self.checkConstraint8(data, total_courses_of_instructors, instructor))
+                self.checkConstraint8_before_assign(data, total_courses_of_instructors, instructor))
     def check_all_constraint_after_assign(self, data, total_courses_of_instructors, timetable_of_instructors, course, instructor):
         return (self.checkConstraint3_after_assign(data, timetable_of_instructors, course, instructor) and
                 self.checkConstraint4(data, course, instructor) and
                 self.checkConstraint5(data, course, instructor) and
                 self.checkConstraint6(data, course, instructor) and
                 self.checkConstraint7_after_assign(data, total_courses_of_instructors, instructor) and
-                self.checkConstraint8(data, total_courses_of_instructors, instructor))
+                self.checkConstraint8_after_assign(data, total_courses_of_instructors, instructor))
 
     def create_chromosome(self, data):
         chromosome = np.full(data.Nc, fill_value=-1, dtype=int)
@@ -111,20 +113,16 @@ class Schedule:
         Pi_value = sum(i for i in Pi_value)
         fitness_value = w4*P0_value+w5*Pi_value
         flag = True
-        print(total_courses_of_instructors.shape)
-        print(data.maxC.shape)
         for i in range(len(chromosome)):
-            print(total_courses_of_instructors[chromosome[i]] < data.maxC[chromosome[i]][0])
-            # if self.check_all_constraint_after_assign(data, total_courses_of_instructors, timetable_of_instructors, i,
-            #                                  chromosome[i])== False:
-            #     print(self.checkConstraint3_after_assign(data, timetable_of_instructors, i, chromosome[i]),\
-            #     self.checkConstraint4(data, i, chromosome[i]),\
-            #     self.checkConstraint5(data, i, chromosome[i]),\
-            #     self.checkConstraint6(data, i, chromosome[i]),\
-            #     self.checkConstraint7_after_assign(data, total_courses_of_instructors, chromosome[i]),\
-            #     self.checkConstraint8(data, total_courses_of_instructors, chromosome[i]))
-            flag= False
-        print(flag)
+            if self.check_all_constraint_after_assign(data, total_courses_of_instructors, timetable_of_instructors, i,
+                                             chromosome[i])== False:
+                # print(self.checkConstraint3_after_assign(data, timetable_of_instructors, i, chromosome[i]),\
+                # self.checkConstraint4(data, i, chromosome[i]),\
+                # self.checkConstraint5(data, i, chromosome[i]),\
+                # self.checkConstraint6(data, i, chromosome[i]),\
+                # self.checkConstraint7_after_assign(data, total_courses_of_instructors, chromosome[i]),\
+                # self.checkConstraint8(data, total_courses_of_instructors, chromosome[i]))
+                flag= False
         if(flag==False):
             fitness_value = fitness_value/1000
         return fitness_value
