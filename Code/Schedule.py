@@ -1,3 +1,4 @@
+from DistributedRandomNumberGenerator import DistributedRandomNumberGenerator
 import numpy as np
 
 class Schedule:
@@ -52,7 +53,7 @@ class Schedule:
                 self.checkConstraint4(data, course, instructor) and
                 self.checkConstraint5(data, course, instructor) and
                 self.checkConstraint6(data, course, instructor) and
-                self.checkConstraint7_before_assign(data, total_courses_of_instructors, instructor) and
+                # self.checkConstraint7_before_assign(data, total_courses_of_instructors, instructor) and
                 self.checkConstraint8_before_assign(data, total_courses_of_instructors, instructor))
     def check_all_constraint_after_assign(self, data, total_courses_of_instructors, timetable_of_instructors, course, instructor):
         return (self.checkConstraint3_after_assign(data, timetable_of_instructors, course, instructor) and
@@ -66,17 +67,18 @@ class Schedule:
         chromosome = np.full(data.Nc, fill_value=-1, dtype=int)
         total_courses_of_instructors = np.zeros(data.Ng, dtype=int)
         timetable_of_instructors = np.zeros((data.Ng, data.Nt), dtype=int)
-
         for i in range(data.Nc):
-            while True:
-                random_instructor = np.random.randint(0, data.Ng)
+            rnd = DistributedRandomNumberGenerator()
+            for j in range(data.Ng):
                 if self.check_all_constraint_before_assign(data, total_courses_of_instructors, timetable_of_instructors, i,
-                                             random_instructor):
-                    chromosome[i] = random_instructor
-                    total_courses_of_instructors[random_instructor] += 1
-                    slotId = data.courses[i].slotId
-                    timetable_of_instructors[random_instructor, slotId] = 1
-                    break
+                                             j):
+                    rnd.add_number(j, 0.1)        
+            
+            randomInstructor = rnd.get_distributed_random_number()
+            chromosome[i] = randomInstructor
+            total_courses_of_instructors[randomInstructor] += 1
+            slot_Id = data.courses[i].slotId
+            timetable_of_instructors[randomInstructor, slot_Id] = 1
         return chromosome
 
     def calPayoffP0(self,data, D):
@@ -116,12 +118,6 @@ class Schedule:
         for i in range(len(chromosome)):
             if self.check_all_constraint_after_assign(data, total_courses_of_instructors, timetable_of_instructors, i,
                                              chromosome[i])== False:
-                # print(self.checkConstraint3_after_assign(data, timetable_of_instructors, i, chromosome[i]),\
-                # self.checkConstraint4(data, i, chromosome[i]),\
-                # self.checkConstraint5(data, i, chromosome[i]),\
-                # self.checkConstraint6(data, i, chromosome[i]),\
-                # self.checkConstraint7_after_assign(data, total_courses_of_instructors, chromosome[i]),\
-                # self.checkConstraint8(data, total_courses_of_instructors, chromosome[i]))
                 flag= False
         if(flag==False):
             fitness_value = fitness_value/1000

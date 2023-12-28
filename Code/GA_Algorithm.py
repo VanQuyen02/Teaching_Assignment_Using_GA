@@ -1,10 +1,11 @@
 from Schedule import Schedule
 import random
 class GA:
-    def __init__(self,data, numberChromosome, numberIteration,numberMutation):
+    def __init__(self,data, numberChromosome, numberIteration,numberCrossOver, numberMutation):
         self.data = data
         self.numberChromosome = numberChromosome
         self.numberIteration = numberIteration
+        self.numberCrossover = numberCrossOver
         self.numberMutation = numberMutation
 
 s = Schedule()
@@ -15,6 +16,7 @@ class GA_Algorithm:
         bestSchedule = []
         # initialize population with pop_size = ga.numberChromosome
         currentPopulation= self.initializePopulation(ga)
+        # print("1")
         # Choose bestSchedule from iteration
         bestSchedule = self.iterateGeneration(currentPopulation, bestSchedule, ga)
         return bestSchedule
@@ -30,15 +32,10 @@ class GA_Algorithm:
             k = 30
             top_k_elite_p1, not_top_k_elite_p1 = self.selection(currentPopulation,k)
             # Crossover phase: Generate another population with same initial pop_size from not top k best elite chromosome from population
-            populationSize = ga.numberChromosome
-            currentPopulation = self.crossOver(not_top_k_elite_p1, populationSize)
-            # Sort by decreasing of fitness
-            currentPopulation = self.sortPopulation(currentPopulation, ga)
-            # Selection phase: Choose top k and not top k best elite chromosome from population
-            top_k_elite_p2, not_top_k_elite_p2 = self.selection(currentPopulation,k)
+    
+            currentPopulation = top_k_elite_p1+ self.crossOver(not_top_k_elite_p1, ga.numberCrossOver)
             # Mutation phase : Generate source for selection phase with n_mutations
-            not_top_k_elite_p2 = self.mutation(not_top_k_elite_p2, ga.numberMutation)
-            currentPopulation = top_k_elite_p2 + not_top_k_elite_p2
+            currentPopulation = self.mutation(currentPopulation, ga.numberMutation)
             # Sort by decreasing of fitness
             currentPopulation = self.sortPopulation(currentPopulation, ga)
             # Selection phase: Choose 300- k best elite chromosome from P'

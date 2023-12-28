@@ -6,13 +6,10 @@ if __name__ == "__main__":
     data = Data()
     data.load_data()
     solution = Schedule()
-    chromosome= solution.create_chromosome(data)
-    # fitness_value = solution.getFitness(data,chromosome)
-    # print(chromosome)
-    # print(fitness_value)
     numberChromosome = 500
     population = []
     for i in range(numberChromosome):
         chromosome = solution.create_chromosome(data)
-        print(i)
-        population.append(chromosome)
+        fitness_value = solution.getFitness(data,chromosome)
+        # print(chromosome)
+        print(fitness_value)
