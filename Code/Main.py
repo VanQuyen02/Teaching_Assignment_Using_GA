@@ -1,5 +1,5 @@
 from Data import Data
-from GA_Algorithm import GA, GA_Algorithm
+from GA_Algorithm import GA_Algorithm
 from Schedule import Schedule
 if __name__ == "__main__":
     s = Schedule()
@@ -8,10 +8,9 @@ if __name__ == "__main__":
     numberChromosome = 300
     numberIteration = 300
     numberMutation = 5
-    ga = GA(data, numberChromosome, numberIteration, numberMutation)   
-    gaRun = GA_Algorithm() 
+    gaRun = GA_Algorithm(data, numberChromosome, numberIteration, numberMutation) 
     numberRunTime = 1      
     for i in range(numberRunTime):
-        bestSchedule = gaRun.run_GA_Algorithm(ga)
+        bestSchedule = gaRun.run_GA_Algorithm()
         print(bestSchedule, s.getFitness(data, bestSchedule))
     
